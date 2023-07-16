@@ -1,0 +1,1772 @@
+today I'm pleased to introduce to the session
+memory for LLM Applications
+different retrieval techniques for
+getting the most relevant context
+and our guest speaker Harrison Chase
+Harrison is the co founder in CEO of Lang Chain
+a company formed around the open source Python
+type script packages
+that aim to make it easy to develop
+language model applications
+prior to starting Lang Chain
+he led the ML team at Robust Intelligence
+an ML ops company focused on testing
+and validating machine learning models
+and led the entity linking team at Ken Zhou
+a fintech startup
+and he studied stats and CS at harpered
+in addition to Harrison
+we are also joined by my colleague
+Philip Software engineer here at Dillas
+thank you so much for joining us
+and welcome Harrison in Philip
+thanks for having me
+excited to be here
+so
+I guess we'll just
+right into it now felt and so yeah
+excited to be here excited to chat
+excited to have you with me
+I think it should be interesting
+dual perspectives right so like you know I think
+you have a you and Zolas and
+with Milvis and then the Zola's cloud
+I've worked with
+a lot of people on the problem of retrieval
+I'm assuming from the perspective more of
+like a database
+and a lot of my exposure has been from
+the application building
+and I think retrieval is super important
+so really is contending to have a fun conversation
+we've got some slides
+we'll have some back and forth as well
+there's the Q amp a thing as well
+so if you have any questions that you want to answer
+just drop them in there
+and we should just have a fun
+50 minutes or however long it is
+so
+today we'll be talking about retrieval in general
+basic overview of what is retrieval and
+and why it isn't important
+samantic search is maybe the most commonly type
+or commonly used type of retrieval
+but there are some magic cases
+and so we'll cover the basics
+and we'll also cover some magic cases
+we'll cover some
+solutions or work around those edge cases
+and then I want to talk a bit about generative
+agents at the end
+which is just a really cool
+more recent paper that came out
+that combines a lot of these more advanced
+ideas
+so at a high level
+and this is a very bare slide
+so Philip if you want to add anything here
+I'm sure that this might be a good slide
+that's in color
+about like what is retrieval and why is it important
+and so the idea of retrieval
+is bringing external knowledge to a language model
+so language models only really know what they're
+trained on
+I think chat GPT has a cut off date sometime in 2021
+they're also not trained on everything
+they're not trained on
+you know your corpus of data
+they're not trained on
+sometimes smaller or less common corpuses of data
+and then I guess another
+reason for retrieval is just to like
+I think some people also use the term like
+grounded generation
+just like
+really ground the generation and the actual documents
+so even if the information is in the language model
+maybe it's in there in such a small weight
+it doesn't really recognize it
+and so you bring it up you bring it front and center
+and put it forward for retrieval
+do you have anything else to out here
+assuming most people have some concept of retrieval
+but I'm curious from your perspective
+yeah what you use to motivate retrieval
+I think for me
+like the big one is also just kind of giving
+evidence to the answer
+so
+think of these
+large language models is
+they can sometimes say whatever they want
+and then with these retrieval
+agency you can kind of go and see okay
+where was the evidence pulled out
+you can kind of list your factual proof
+sort of like a starch engine style
+so you're pretty much using these
+it does a search engine to kind of
+give proof to what your alumnum is saying
+I think
+that combined with the external knowledge
+like
+giving us some episode
+and knows what it's talking about
+are the two most important
+in my opinion
+how have you seen
+like I think the point about like giving like
+sighting sources basically is
+is really important
+like what have you seen
+people doing there I think the obvious one is you like
+ask it to cite its sources
+and then it like
+responds with like a list of URLs or a list of
+whatever happens to be the sources
+for the documents that you're passing in
+what do you see like
+do a lot of people like display those
+do they do more like
+error or internal checking for like
+consistency with those sources
+like how do you see those often use
+we've kind of seen it mainly used as
+kind of giving your Top Gear results
+and giving sort of like a snippet of the text
+and then kind of giving a link to the actual document
+there hasn't been too much analysis to kind of see
+okay on every answer
+is this correct it's more along the lines of
+kind of giving it a backup and showing like
+where it's pulling from
+most of the time at the moment
+I know where the retrieval apps from open AI
+over there we're gonna doing that style of
+kind of listing out where if it doesn't know
+I forgot exactly
+what the exact method it was using to
+see if it doesn't know
+I think internally they might have had some
+kind of trigger to say
+okay
+it's maybe time to search over in the vector index
+but it was mainly kind of showing the results and
+showing because
+also when you're pulling out from the
+retrieval
+it sometimes also tries to summarize or
+a lot of the use cases people use are to summarize it
+and this summarization can also go wrong
+because it could then start pulling things
+into the summarization
+and that's where
+kind of whenever you are using the vector index
+it's worth kind of also giving the search results just
+just in case um
+so you're pretty sure what's going on
+and if you need to kind of go back to something
+but internally in like kind of
+large scale usage
+it's usually up to the
+user to kind of look over
+that factual evidence to see if things line up
+but I think where there is work going on
+into that to kind of
+compare the two I know um
+I'm exactly sure
+but I think there is work going on there
+awesome so hopefully that's some good motivation for
+retrieval and why it's important
+and I'm assuming most listeners here
+are familiar with that as well
+so now quick overview of semantic search
+this is
+I would say by far the most common type of retrieval
+um
+actually maybe
+maybe the the
+maybe the real most popular one I think
+like just using search engines
+like if you think about calling out to a search engine
+that's a type of retrieval as well
+but in terms of retrieval over your internal documents
+semantics are tasked to be the most popular one
+the basic overview is
+and this happens during query time
+you take the user query
+you create some embedding for it
+you then query it against your vector store
+and so
+this vector store has already been pre populated
+with a bunch of your documents
+and these documents have been ingested
+split into chunks
+and Ombeddin's been created for each chunk
+and then they've been put in this vector store
+like zillas or Novus
+and then
+you know at run time you pass the search square in
+you get back some documents
+and you put it into the context
+of the language model and it generates out an answer
+and you can see here like
+you know
+but the prompt doesn't have to be super complicated
+like answer the question
+using the additional context or something like that
+and there's
+there's a bunch of variants of this where you say
+make sure you only use the context there
+return any source citations
+that you used
+so this box here
+is where a lot of like the prompt engineering
+in Ling chain happens
+this is
+this is high
+level before going on to kind of like you know where
+where this fails
+which I think is an interesting discussion
+maybe we can talk about a bit about like the
+the vector store
+um and you know Milvis and and Zillas and in particular
+and so I think a lot of people
+are wondering like you know how
+how do I like one I guess like
+what is a vector store why do I need a vector store
+and then like how do I choose one
+and so from your perspective
+as you guys are thinking about building
+like the best
+offering for vector store
+like what like how do you guys think about that
+what are the axisies that you compare across
+yeah
+I think currently
+the biggest one that we're looking at is just
+use of use
+for a lot of users
+kind of depending where they're at
+they don't want to go
+run 6 Docker containers
+set up the network in the Docker connect to the Docker
+do all that stuff
+they just want something that can say okay Pip
+and install import this have it worked so
+that's been a big one
+that also kind of use abuse of the client
+none of these vector databases have really
+settled on a language slash style
+like
+API style
+for this sequel that people are trying to chase towards
+there's other ones
+I think there's the grafti beast aisle
+but there is no like singular
+language for doing this no stingular API
+so trying to figure out what the simplest one is
+how can we make things simpler
+without having the user have a bunch of arguments
+to set up the vector database
+and do all these things
+because yeah everyone can get it pretty fast
+but at some point you need to make it easy to use
+we try to offer as many switches as possible
+which is great for kind of big businesses
+where they have a team that can handle
+doing this stuff
+but for a smaller user
+it's pretty new to this
+do they really need all those switches those
+the extra 10 milliseconds
+really
+matter for someone who's just kind of messing around
+with it it's kind of finding that balance kind of
+creating options for everyone
+that's been the main thing
+but then again on the big user side
+we do want to be fast we do want to be stable
+we do want to kind of handle the new features
+that are coming out
+but yeah it's it's a balance
+performance versus these views
+that's their kind of main
+looking point
+but one thing that I was interested was
+what's your opinion on
+kind of these new models coming out
+that are supporting
+token sizes of like
+I don't know what the latest one was but
+abnormally large token sizes were
+at some point you can probably fit your entire
+corpusive data into the prompt
+yeah
+um I mean
+I think the
+the short dancer is
+I don't really
+I don't really know
+no I don't think anyone knows
+I think like um
+I think like it's um
+so I've played around with the Anthropic One
+the hundred K1
+I haven't played
+I know there are some that are now like
+supposed to be bigger than that
+I haven't played around with any of those
+I played around with the Anthropic hundred K1
+and for a lot of cases where you just need to
+like I'll tell you what it works really good for
+it works really good for
+and I pass at our entire code base
+and if I want to find like a single kind of like
+fact in there
+it works really well for that
+so it kind of just like finds that fact and um
+and and and extracts it
+where it didn't work amazingly well is
+is where I asked it to combine
+like multiple things together
+so do I give an example we have
+we have the concept of agents
+um in Ling chain and then we have the
+we have uh different L 0 ms right
+and so a lot of the examples in Ling chain um
+that use agents use like open AI's LA
+just because that's
+I mean that's the most popular one
+so it's in all the documentation
+but
+so basically what I ask is like
+can you create an agent using
+the anthropic rapper for me
+and all that information is present in the code base
+right like the anthropic rapper
+and I asked it like you know
+how do I import the anthropic rapper
+and knew how to do that
+how do I start an agent and knew how to do that
+how do I start an agent with an anthropic model
+kind of struggled with that so like that type of
+and I'm not sure if that was because like
+the context is really long
+because I've seen it performing it better at some
+bigger questions but
+but for those cases that I gave it
+it wasn't working amazingly well
+so I think so
+I mean
+this is a bit rambly
+I don't think anyone really knows
+I think it's really interesting to play around with
+I've played around with it a bunch
+and I wish I had time to play around with it more
+I think they'll likely be
+I think like the
+there's also different use cases
+right like some use cases you need really fast answers
+and so the downside
+of K is
+it takes really long
+but if you have that time to wait
+and these models do get good enough where they can
+address some of those issues
+and they just reason for everything like
+yeah absolutely
+so I think there's probably
+a place for
+a time in place for both
+I don't know what's your opinion
+how do you guys think about that as a bit
+so some of the hot takers might say like oh you know
+vector stores are no longer
+needed because of these long context
+length windows
+how are you guys thinking about that
+our kind of
+general thought is that
+a lot of the data will kind of be
+lost within the Japan context
+is because there's not gonna be weight
+I guess that's
+I don't know
+I've never really played around with it and
+I've been played too much with it
+we've just kind of been reading papers and all that
+we kind of lose some of the
+the key information
+like if you have
+if you have a question that really stands out for like
+like let's say three
+like one sentence that occurs once and are
+it's like pretty out
+like outside of the context of the store I think
+for a thing
+on thropic release
+some tests where they did
+put the entire book and they found one line
+that one line was kind of an easy one to find
+I think I remember someone was telling me
+that's kind of like where I kind of
+I'm not 100% sure but
+will it be able to
+remember things within that text
+will it be able to assign their car to wait
+to what it's trying to pull out from
+and that's where we think
+it might not be able to do it
+there's just too much information there
+where it won't be able to pull out
+the info and then also speed
+you're trying to answer a question
+about your entire repo
+every time you end up using it you're going to have to
+upload your entire repo
+unless they do some cashing method
+in the layers somewhere where you can kind of cash and
+get the response faster
+based on the first text that you put in
+I don't really see it being too useful also pricing
+last I checked it was
+pretty expensive
+not too many worries at the moment
+but
+we'll see on this clip area that's just going so fast
+and then
+I have a quick
+I have two Q a questions that kind of pertain to this
+that we can probably
+answer right now
+so one of them is from Sanil and
+try to kind of sunrise it giving
+the model is trained on a set of data already
+what is the model
+actually doing with the additional docks
+I external knowledge is it simply
+or is it somehow taking external knowledge
+into account in terms of generating answers
+yeah it's taking the external knowledge into account
+in terms of generating answers
+so you can feed it a document that has a bunch of
+facts about
+I mean you can see that it a document about
+like a code a code snippet from the Ling chain repo
+and then ask it like
+you know what's happening on this line
+how would you change this line to another line
+or something like that
+so basically all language models are kind of like
+conditional generations of the next token
+and so when you pass in additional context
+it's now conditioning its generation
+on the data that you pass in
+and so what that generation is
+whether it's answering questions
+whether it's doing summarization
+it kind of depends on what you ask it to do
+so if you ask it to answer a question
+it's absolutely kind of like
+taking in that external context
+and using that to answer the question
+and then one more from
+certified cash name wrong
+againie
+this kind of pertains to the docks and getting them
+into the vector store which is
+how amp corn is it to properly
+generate chunks here
+what's the best size for a chunk
+what are the best techniques for chunk generation
+I know there are some defaults within
+length chain for how you guys are generating
+chunk sizes but have you kind of looked into that
+and to see what these different chunks how they work
+what's kind of like the best row
+that's a great question
+I was gonna ask you
+what you're seeing from customers as well
+I think like I mean I'm happy to give my take here
+I don't know
+okay so
+so I guess even backing up the step
+like what is chunking
+why is it important
+it's basically
+taking these long documents and putting them in
+creating smaller
+chunks of data with them
+this is important because you only want to retrieve
+the most relevant chunks
+so I think there's
+you know I think there's
+okay and like okay so at one extreme you know the
+if you chunk everything into one word
+that would be pretty useless because you
+lose a lot of the context
+if you chunk everything
+into one document
+you wouldn't have actually done any chunking
+so I think that kind of like shows the trade off
+and like the shorter the smaller the chunks are
+the less context you have
+but
+the bigger they are
+the one like the embeddings might be a little bit more
+the embedding might not fully capture
+like there might be multiple concepts within
+that that aren't fully captured
+and then to like
+you can just you can't retreat as many of them
+to put in the context window
+cold in the context window study
+so
+I think
+I've
+generally had
+better lock with
+smaller chunks
+honestly um I think like
+I think like I think
+the defaults that we have in
+LinkedIn are a little bit large
+and so I generally
+move it down to like maybe like a chunk size of like
+500 tokens or something like that
+um
+a few things here
+this is you know
+purely a characteristic
+I don't know if there's a right answer
+there's a great
+pool by layering Martin called auto evaluator
+which lets you do kind of like this whole question
+answer a pipeline
+including like different chunk sizes
+different chunk overlap
+so it's often useful to have
+overlaps and chunks to like
+basically
+carry through some of the context
+and so there's a great tool by
+Lance Marin called Auto Evaluator
+that lets you
+experiment with different versions of these
+and then run kind of like an evaluation n to n
+to see for your use case
+what comes out to be the best
+the other thing that I'll add
+and I think this is something that Lane Chain has done
+pretty well
+is it's really important how you create these chunks
+um so like by default you can just split every token
+um right but I think like
+the idea behind chunking is like as much as possible
+you probably wanna have like
+things that are semantically the same in the same
+in the same chunk
+um and so a lot of the text splitters that
+we've added don't split
+on a token level
+you can do that
+there's a default in there
+but they split more on like
+characters that we think are
+like semantically meaningful
+so for example
+if you have like markdown you have like the
+you have like the single hash Mark or hashtag
+or pound symbol
+and that's like a head or one
+and then you've got two of them and that's head or two
+and then you've got
+three of them and that's head or three
+and so if you start splitting on those recursively
+you start getting chunks of tax
+that are like in the same sections
+and stuff like that
+and those are generally kind of like
+semantically meaningful chunks that should probably
+be together
+and so we kind of like split according to that
+adding another thing
+and this is something we're working on
+and I hope to have a version of that this out
+Lance is actually working on it
+he he's doing a lot of amazing stuff for untrieval
+you should have him on as a podcast guest actually
+I'll be always on our guest
+but um like one of the things that he's looking at is
+it
+when you split
+you sometimes lose
+some of the contextual information about like
+where you are in the document
+so in the example I just gave
+if you just split on
+header ones and then header twos
+and then header threes
+when you split on the header 3
+you lose a little bit of information
+and that you lose like okay
+what header 2 was this sin
+and what header 1 was this sin
+and so there's this concept
+in link chain of like metadata
+that's associated with each document
+and so
+basically what we're working on is kind of like
+propagating through some of those section headers
+into the metadata
+to basically enrich the metadata as you go along
+and then the idea there would be you can kind of like
+create
+you can do chunking without losing some of the
+context of where it is in the document
+that was my long rambly answer on a lot around chunk
+and I think it's really really interesting
+we've invested a bunch in a lot of text splitters
+in Language Train
+and I think
+I don't know if I've seen that many other places
+that have
+but I'm also curious for your take on this film
+what do you see people doing as they're creating things
+to create embedding forward to put invector stores
+at the moment we're kind of seeing the simple route
+definitely not
+doing this kind of analysis
+on kind of what type of documents being looked at
+and then grabbing
+based on the headers
+yeah so for us it's mainly been
+just a simple chunk by X tokens
+it tends to work pretty well for most users
+I think
+for the results that they're looking for
+I don't think like there is a lot to be improved upon
+not so where we kind of point
+people to laying chain
+to kind of get a better pipeline
+but it's usually just the basics
+or what they're doing is
+they're usually not
+storing these giants
+so if they're going this PDF for out or
+like their own data
+they'll usually go through laying chain
+and then kind of give us what they use
+and they decide there
+if it's someone directly using us
+without using Laying chain or any of these libraries
+their data usually is not these giant documents
+they're kind of pulling already data out
+like UA data or something like that
+where you can kind of trunk over
+you can pretty much have your trunk be the entire
+document there
+it really depends but normally we don't really see
+they kind of just say like okay
+we have these embeddings
+how can we
+make our search better and faster
+that makes sense
+yeah let me
+I think there are a few more questions here
+but I think for one of them will be going over it
+later in terms of conversational memory and
+prompts so yeah I think we could
+kind of continue
+cool
+all right
+I have a few more questions that I want to ask you
+about around the ingestion pipeline as well
+but we'll move on
+to some future slides for now so okay
+what are some edge cases of semantic search
+there are a bunch that we've kind of noticed
+I would say semantic searches is
+and I really like what you said about the ease of use
+of getting back to shorts to be easy to use
+because I do think that semantic search goes a long way
+it gets you
+I'm not going to put an exact percentage on it
+but probably somewhere between like 80
+and 90
+95 percent of the way there depending on your use case
+and so I think making that
+really easy to do is really enabling for
+a lot of developers
+but I think there are
+some edge cases that start to arise
+as you progress
+and
+a lot of these are kind of just characteristics
+on top of semantic search or around semantic search
+and so
+yeah overview of them here
+there's probably a bunch of missing
+so I'm curious for your take on
+I'm as well Philip but
+I'll just run through a few
+relatively quickly
+so first
+first repeated information
+so when you have documents that are
+exactly the same copies of one another
+or just have really similar content
+and so like why does this
+why does this matter
+one like when you do retrieval
+you're getting a lot of copies of the same thing
+and that's not exactly ideal for
+you know
+providing the language model
+with the best possible set of information
+that it needs
+and then like a
+very correlated to this is just takes up more context
+so in order to get that diversity
+you'd have to like
+really increase the number of documents that you have
+and then that just starts to take up context
+so some of the things that we've
+seen and implemented in Lane chain here
+one is the idea
+yeah there's there's
+1 one's idea of basically filtering out
+similar documents
+so like you do a big retrieval step
+and so
+so normally like by default in LinkedIn you pass in you
+you do a retrieval and you fetch back like
+four or five documents
+and then you pass those into the prompt
+and we generally choose four or five because of like
+the context window links and
+and that's like a reasonable default
+but one thing you could do is basically fetch like
+20 or 30 documents
+and then you just filter out ones that are
+that are similar
+either either through
+in beddings or bypassing them to a language model
+in beddings are probably the faster use case here
+and that's we've implemented in this idea of like
+contextual compression
+which is the idea of basically
+you retrieve documents
+and then you do
+something to kind of like
+compress the information in them
+relative to the query that comes in
+and so that's one thing here
+another thing you can do that we've implanted on
+most vector stores I believe
+is have a different type of search
+so rather than doing semantic search
+where you basically
+select the documents that are most similar
+there's another type of search called like
+max marginal relevance
+which basically takes a vector
+and then when it's selecting vectors
+to retrieve it optimizes
+not only for similarity
+but also diversity from other vectors that it's
+already retrieved
+and so the idea is basically
+yeah if you have two vectors that are exactly the same
+as you start retrieving them
+you're not going to add them if they don't
+if they don't add much
+and there's different perimeters you can tune there
+another thing that'll add
+that I forgot to put here
+but it's just as simple as you can kind of like
+the duplicate documents before they come in
+you can do some duplication process that's maybe like
+yeah I mean you know
+I guess like
+one downside of that would be if you have documents in
+like location a and location B
+and you duplicate them
+like where do you put as the location
+do you put location A do you put location B
+will that actually matter for your application
+like if you're citing sources or something like that
+so it's a little bit more risky there
+what are your thoughts on this Philip
+have you seen this pop up
+have you seen any other techniques
+which of these three do you think people do most
+I would say
+at the moment
+it's a little tough area to do because
+for document Youtuber patient
+unless you're doing exact pattern matching
+if you're going just by the embedding
+yeah you could do like a search
+to see okay what's the closest result
+like what are the 10 closest result
+kind of set a scale for what's the closest
+like what's considered a duplication
+and then kind of remove
+the only ish to there is you don't really know
+what level you set your similarity in the score
+to mean a duplicate
+because again one
+element of the vector
+could be completely different
+meaning that everything could be different
+these are such a larger embedding us that
+the duplication is hard
+one thing I think I had a question
+I'll ask it after
+terms of the compression
+but another thing I think we messed around was
+whether compression was
+taking like yet
+as you said your top 10 results
+and then summarizing across all of them
+and then using that
+in your prompt
+so kind of
+even if they don't hit as accurately
+you can still summarize across all four
+to make it a single document
+and then
+use that in your next question which I'm guessing is
+well you guys are also doing the contextual compression
+yeah
+yeah in terms of getting rid of repeated information
+it's difficult
+unless
+you know a document's going to be pretty similar
+then you can just kind of do an upset
+based on the primary key of the document
+but
+if you really want to get rid of like
+contextually repeated information
+I don't think we have a trick for that yet
+all right
+jumping into the next thing
+that I've seen
+often and
+pop up conflicting information
+so you have the same answer for multiple sources
+so like a way of thinking about this
+is like in your notion database um
+you might a lot to say you know what
+what is the vacation policy for your for your um
+for your company
+you might have an answer
+you might have answers for that in different places
+like maybe the answers kind of like changed over time
+and so there's like the
+the master kind of like HR document
+and the answers there
+but then there's some like
+random meeting notes from like a year ago
+where they discuss the vacation policy
+and so then the answers there
+and so when you do a retrieval
+you pick up information from one place
+and pick up from any information from another place
+and you pull them both into context and you
+and you're now asking the language model like hey
+you know
+generate the answer to the question like
+what is the vacation policy
+based on the falling information
+and the falling information has
+two conflicting sets of information
+so
+what do you do there
+some things that we've seen is basically
+when you're retrieving sources
+you can have some important
+you can have some notion of importance built in
+so in the example above you'd probably wait like
+the HR document higher than
+the random meeting notes
+and if those are the only two documents for treat
+this doesn't do much
+but when there's a lot of documents you can
+you can add some importance waiting
+and kind of filter those up
+the other thing
+that is maybe a bit more robust is you can pass
+well it's a more robust in some ways is you can pass
+like the source information the metadata
+to the generation step
+so when you pass this to the generation step
+you don't just say like
+you know here's a chunk of text that was found that
+that seems relevant
+you also say this was found like in the master H R
+document and then for the other one you say like
+this was found like in meeting notes on like
+you know 3 14 2022 or something like that
+and language models are pretty good at like
+ambiguous reasonings
+they should if you say like you know if they're in
+this gets back to some of the
+prompt engineering and prompt construction
+if you say like
+in the case of like conflicting information like
+choose the one with that of the source that seems more
+credible
+that should
+that should help there
+that's what I've got
+for conflicting information I've seen this popular
+they all fill up any other
+and these are all like edge cases
+so to be clear
+like I don't think these are extremely common
+for the audience listening
+but you know as you start to encounter these
+it's just trying to provide some
+context on what might be going on behind the scenes
+yeah
+I think for us a key one has been
+if you can get kind of dates
+and just do metadata film train based on dates
+where you kind of assume
+the most recent knowledge is the best knowledge
+sure there are our cases like that
+where you said that it's HR saying something
+or it's some random thing saying it
+in our sphere
+outside of metadata filtering we don't have
+really the ability on
+it comes again more closer to
+your domain of the actual kind of prompting around
+yeah but yeah
+kind of if you can
+use
+the large language model as you said
+it can usually kind of figure out
+okay if you can then analyze the questions
+you answer from hrs probably better
+but just from like the raw
+the raw raw side of it
+metadata filtering kind of
+trying to see if you can kind of kick some results out
+and have a higher chance of getting the result you want
+if you know like
+random forum if this comes from a random forum
+most likely there
+you don't want to use that as your result
+filter out all that data
+but yeah it really depends on how you construct
+your data and what information you have ahead of time
+again with important swating
+that kind of
+is difficult to also do
+because you also kind of have to have a say
+and how important it is
+without
+if you don't want to use the large language model
+you kind of have to have that metadata hand
+or then yeah
+if you're insuading you can kind of still try
+as well but kind of automatic things
+you'll probably much have to
+fall back to the large language model to
+have it decide
+next one
+related to the previous one is
+and related to some of the
+stuff you talked about is just temporality
+so information can update over time
+so yeah you know the vacation pause
+you could change from one day to another
+in both documents
+could still be in the database
+so I think like some solutions that I've seen here
+and I think like two of them are very similar before
+so the recently waiting in retrieval or recently
+filtering as you said
+I think that's
+a good way to filter them out completely
+you can
+also include the time stamp and the generation step
+so you can sell the language model to trust more
+up to date information more
+the other one is an interesting one
+and this doesn't apply in all situations
+but the idea is basically to use reflection to update
+your concept of something over time
+so in the example of the vacation policy
+in addition to
+and this is okay so
+so I mostly see this use in like
+conversational settings where you have a chatbot
+and I'm chatting with a chatbot and I'm talking about
+my friend Philip
+and what he's up to and what he's doing and
+and and things like that
+and so
+rather than
+you know one way of
+adding memory to that chatbot is just to retrieve
+kind of relevant
+pieces of what I said about Philip
+when I talk about Philip the next time
+but another way of adding memory is to create this idea
+of similar to
+like a knowledge graph
+where it has a concept of Philip and who Philip is
+and what he does and what he likes
+and all of that stuff
+and so then as information comes over in over time
+that entity is updated in the Knowledge Graph
+and I think there are a lot of downsights to this
+the reflection step uses as a language model
+so it costs more money and it's kind of slow
+and so I think it's still very experimental
+but the paper we'll talk about at the end
+the generative agents paper
+uses this technique
+so
+I'd say that one's a bit more researchy at the moment
+but I think very very cool
+and then the other two are a bit more practical
+I don't know if you have much more dad here
+this is pretty similar to the woman who's talked with
+all
+before
+yeah
+mainly just kind of time stand based and date based
+I feel
+there are like once you start bringing in
+if you have the funds to start pulling in
+LMS you can also them
+kind of use LMS on your metadata
+that you start with a vector and then decide o
+do we want to combine this
+and then kind of keep updating and upsetting but yeah
+in terms of our side of things
+we kind of the issue with our set of things that
+we try to do
+as much as we can just base off the raw data
+like that we get
+trying to avoid us much as many LM calls as possible
+that gets expensive and
+yeah
+this is a cool one that we've added recently
+basically sometimes
+questions can be more about metadata than content
+so I think in an example of this
+is like if you have a user question that's like
+you know what's
+what's a movie about aliens in the year 1980
+the semantic content and
+and so to back up even another step
+like embeddings
+are really good at capturing semantic meaning
+of things
+that create this Desert Benz representation of text
+and and so the semantic thing
+the concept that the users looking for are movies
+related to aliens
+but there's another thing which is this like
+basically metadata filter as we call it
+which is like you want the year to be set to like 1980
+and this is like a very like exact match type of thing
+it's
+this is this
+depending it totally depends on the schema obviously
+but like this could very well be a field in the schema
+that you want a query and you basically want a filter
+results based on that
+and so
+we added basically kind of like a
+self query mechanism
+that before it does the semantic search retrieval
+it actually splits that this out into two things
+it splits it out into a metadata filter
+and then it splits it out into the
+into the query itself
+so in this case
+you'd get a metadata filter which is like
+exact match year equals 1980
+and then you'd get the
+a query which would be like
+aliens or something in this case
+and so then when you
+and then there's a question of like
+how do you apply the metadata filter
+a lot of vector stores have
+ways to pass in metadata filters
+and so you can kind of do it directly in the query
+you know if that doesn't work
+you can all probably
+also filter things out
+after it comes out of your table
+but pretty much all of them have
+have ways to pass metadata filters in
+and so basically then you pass in this metadata filter
+along with the generated aliens query
+and it kind of like combines the best of both worlds
+you get the semantic search
+with this
+with this
+like exact match filter that you can apply
+we tried doing that on the other side as well
+with self inserting
+so you can kind of
+go take a batch of your insertions
+and then kind of generate
+kind of a schema for what you want to insert
+so you know the filter is
+maybe extract what you want a filter on the columns
+and then later on you do the same for the quering
+and it can decide based on what it sees in the schema
+probably be expensive but
+that would be interesting
+where I can kind of decide
+what metadata wants to pull out of the data
+yeah
+that is we haven't done this
+that we've thought about it
+framing exactly as you just said
+like what metadata should we attach from a
+from a document
+um
+yeah that
+let me make a note of that
+I'm gonna slack Lance about that right now
+extract meso data
+during
+all right
+well we'll add something there
+that's a really good idea
+yeah cause I think like
+I mean this goes back to the ingestion part but like
+even yeah like even even for you
+even if you're not doing this self query
+it's still really
+really useful to have this enriched metadata
+take thing right so
+yeah
+some stand you know who
+so I think who had brought this up
+I think we were chatting with someone from Zapier
+and they had brought up a similar thing as well so
+so now that's two people
+so that means we definitely have to do it
+so
+only the issue I can see is
+then you're making another LM called for the metadata
+also embedding call
+and you're
+it's getting expensive
+unfortunately oh yeah yeah
+yeah
+but you know I think I think like um
+you do
+probably have to trust that like
+Lom costs are gonna go down
+and latencies are gonna go down
+over time given the whole speed of everything
+and also like another thing I'll just say is like
+you know you don't need to do this for every use case
+right like you can do this
+true yeah kind of
+as desired it's uh it's another
+that's the thing with like the space
+right now as I think
+there's no one right way of doing everything
+right like there's
+I think and a lot of
+what we view link chain as is just these components
+kind of like
+tools in your tool belt that you can use for like
+different use cases
+so if you really want to care about this
+and it's really important that you do have like this
+like identifiable metadata
+you know it's an option
+but it doesn't mean that it's the right thing
+again semantic search
+gets you 80 percent of the way there for
+a little bit
+or it gets you there for 80 percent of the use cases
+so
+yeah
+awesome
+multihop questions
+so this is another one
+where you could maybe be asking multiple questions
+in one thing and so I think like there are a lot of
+there are a lot of examples of questions like this
+I think some of them
+you know I first started thinking about this when
+when the react paper came out which which
+synergizing reaching an action
+an early version of an agent
+you've basically got these questions
+you know
+like what's the population of the capital of Kansas
+and so then you've got a question like
+what is the capital of Kansas
+and then what is the population
+of of of that city and so um
+the the um
+the issue with semantic search here is that
+if you just look up the original question
+it might pull in one part
+or the other part
+or it might pull in like the population of capital but
+not of Kansas
+or might pull in the capital of Kansas
+but not population information
+and so
+it's basically this kind of like
+multi hop thing you need to do
+and
+so agents are just
+a way of saying you know
+break the question down into multiple steps
+and so use the
+use the language model as a reasoning and engine
+think about what piece of information
+you need to look up first
+okay what's the capital of Kansas
+and then think about
+what's piece of information you need to
+look up second
+okay what's the population of that city
+and then do those in separate queries
+and by the way
+some of these queries might not be to the same database
+right so like one could be to a vector store
+another could be to a sequel table and so
+and this starts to get more and more
+until it's just the idea of like
+a generalizable
+agent that you can use for retrieval
+and again as discussed you know
+racks up a lot of LM calls
+it can go off the rails a little bit more easily so
+so I think it's again
+just
+another tool that you can have in your tool belt here
+now speaking of rocking at the alarm calls I know
+this isn't work
+I know we've been working in like
+the cash chain of the alarm calls
+I think you
+include that also a 9 chain now but you could be cash
+yeah
+you be cash
+yeah great crowd
+yeah
+hopefully that kind of helps out of these
+use cases where
+who knows you might be sending the same first question
+multiple times
+if you're asking
+multiple questions about the city of Kansas
+but up maybe
+it will
+hit the cash a few times and you might save some money
+but who knows
+awesome
+cool okay
+the last thing I want to talk about really fast
+and then what we can probably go to do this from
+question answering for the remaining bit is
+a paper about gendered of agents
+and so this came out of Stanford about a month
+two months ago
+the basic ideas
+they set up a simulation of these different
+agents that were interacting with each other
+kind of like in the Sims
+so they had like 25 different agents
+they all had kind of like their own
+they all had take their own actions and
+and they all had their own like memory basically
+and so how they did the
+the memory I think is really interesting
+because I think it
+you know what it
+memory is really like
+retrieval of relevant information at the right time
+in some senses
+and
+and so I think how they did it is pretty interesting
+and pretty instructive to look at
+and they use the concept of
+so basically
+what they did is they had all these observations
+and then they would basically fetch
+relevant observations and then put them into context
+as agents were deciding what to do next
+and so what exactly was going on in this retriever
+there were a few different components
+there was the relevancy component
+and this is where
+the semantic search bit comes into play
+so they'd calculate kind of like
+the relevancy of the current situation
+to previous situations
+and bring in information about previous situations
+importance also came into play
+so they would retrieve like more important information
+and to your point around like
+you know how do you do this in an automated way
+yeah they used a language model to assign importance to
+to memories and so they were
+that you know there was
+there was that extra cost inferred there
+and then recently was also another bit
+so they gave more weight to more recent things
+not to not out of the sake of like
+trying to djuplicate conflicting information
+or anything like that
+but just you know
+more recent memories or probably more relevant
+so pulling that in
+and
+then on top of that the other thing that they added in
+and this is similar to some of the
+stuff talked about earlier
+was a reflection step
+so they kind of had a reflection step
+that at each time period
+they would do reflections on the past
+and observations and then add that as a memory
+and so then they start pulling this
+and they treated that just as every observation
+it just as every other observation
+so in terms of the retriever
+it didn't change anything about the retriever at all
+the retriever was still a combination of like relevancy
+important and recently
+but the thing is now
+the things they were retrieving weren't just like
+individual observations
+some of them were
+also reflections on those individual observations
+and so a way of
+like pulling in a higher order kind of like reasoning
+about those
+I think
+again
+this was a research favor
+so I don't
+this probably not you know this isn't production ready
+but I think it's a really interesting look at how
+like more complex types of retrieval can power like
+really interesting and dynamic
+simulations and situations
+someone how do I question the chat
+if you have a link to that paper
+or what the paper is called
+yes it's called
+I think it's called generous agents but let me find
+let me find a link to that and I can drop there
+generative agents interactive
+semoacra of human behavior
+I'll drop it in the chat
+oh
+someone beat me too
+yeah
+awesome I'm
+not sure we have a few
+Q&A questions if we want to go over them
+not sure if you had
+more buds but um
+that's that's all I had
+unless there's other things that you think we should
+we should talk about
+I think that pretty much about the gist of
+memory in terms of L lungs but uh yeah
+let's
+go through these
+so we'll start with a big one from
+so yeah
+there's a leaf that the future of L lungs is about
+separating
+the reasoning ability of the model from the knowledge
+of model holds
+this leads to
+to models that are experts at
+reasoning about tasks
+but maybe don't have all the knowledge about everything
+and see this is how
+this is how people will use alums in the future
+what are your thoughts on this
+might be nice
+if you can discuss a few examples of this scenario
+yeah I think um
+I mean I think
+I think there's definitely a lot of variety to it
+I think that's a lot of the underpinnings of this
+idea of like
+we're true delogmented generation
+like you're you're pulling in the relevant contacts
+and then you're asking the language model to
+reason over the relevant context
+and the question and provide an answer
+rather than just use information that's in its weights
+you know there are
+so
+so I think there are
+yeah there there there absolutely are um
+a lot of very valid
+reasons
+to think this way
+you know obviously
+there's a lot of applications
+where you don't have to do this as well
+like language models are like
+go to have a conversate
+and maybe like here's one distinction
+at draw as like
+you know are you
+interacting with
+the language model for the sake of its
+reasoning ability
+or are you interacting with the language model for like
+entertainment or anything like that right
+so like you know like if you look at character AI
+like a lot of
+their characters are
+for entertainment purposes right
+and so I don't think they do a lot of like this
+this retrieval augmented generation
+when you start getting into
+and then there are you know
+people use chat GPT for a lot of information right
+and it's pretty good at a lot of it
+and it gets it a lot of factually correct
+and so they're all
+there are also works
+being done to like improve the underline
+kind of like
+factuality of the LM so they don't just like
+make stuff up
+I think
+even if you have a language model that doesn't make
+stuff up and doesn't hallucinate
+and
+when it doesn't know and answer to a question
+just like says it doesn't know
+and as opposed to make stuff up
+which is the current situation
+you still probably want or like
+this idea of like
+combining the language model with other data
+it's still extremely relevant
+because there's always going to be data
+that the model is not trained on
+and so
+then the options to train the model on that data
+fine tuning right now is
+much more expensive than a lot of
+this rag the retrieval augmented generation style stuff
+that's a long way of saying I think
+I guess the question is about the future of LOL Ms
+and I'm really
+husband and make predictions about the future
+because I don't really know anything
+but I'm guessing there's probably
+there's absolutely a place
+for this in some form in the future
+um
+I may pull out the next one
+so someone had a question about conversational memory
+are we starring the previous
+conversations
+and
+they're more structured and
+much better than free form conversation
+so I guess yeah a conversational memory
+like what the route is for starring this
+and retrieving from it
+yes
+I mean the basic thing that everyone's
+doing with conversational memory right now is
+you just keep a buffer of the previous
+messages in conversation
+so the most it's entirely recently weighted
+I'm pretty sure that's what Jack GBT does
+I'm pretty sure that's what character does
+could be wrong
+but I think
+they're just keeping around this
+buffer of most recent messages
+and as the context windows get longer
+you can keep that buffer around for like
+a longer period of time etc
+I think there's
+when you talk about extending that
+yeah like all the same stuff applies
+you could do
+I mean as you pointed out they're less
+structured than some of the structured information
+this is actually a really good question yeah
+I haven't thought too much about the differences
+in terms of how you'd want to do retrieval
+I'm guessing you'd probably
+want to treat the conversation
+as a whole document
+as opposed to each message as a document
+you'd probably want to have a decent amount of
+overlap in the conversation
+maybe more so than a structured document
+um but that's a really good question
+I haven't thought about it in too much detail
+another one about
+chunks is for long documents
+is there a way to just like the
+best end chunks to use to summarize
+leveraging director stores
+what's the best way to think about this
+so is there a way to kind of filter out
+what you don't need
+yeah I mean I think
+the
+well 1 it
+some extent it depends on the questions
+that you want to be asking of it
+if you're asking it to like summarize the document
+you probably want to have the whole document
+and you probably want to use the whole document
+if you're trying to extract like questions about it
+then I think using a vector store
+provides a very natural way to do that
+you kind of like split it up into chunks
+you only retrieve the chunks that matter
+you don't set like a high level of chunks
+so yeah I think
+I think it depends a bit
+and the question is that you ask of it I also think
+and then like how do you determine the chunks
+this gets back to the original point
+right now it's like all hearistic space
+there's kind of no things with all of this stuff
+like I would let me drop a link to like auto Evaluator
+that Land Smart Invade that's really good
+but you can pretty easily kind of like
+experiment with different versions
+of all of this
+and
+yeah like I think
+I just put that in the track
+so I think that's
+I think I think that's a pretty good way
+to
+yeah
+basically it's kind of
+there's no there's no one universal answer
+you should try a bunch of different things
+let's see what it works for you
+and auto evaluator is a good way to do that
+and then we have another one is
+any imppressions on how
+effective compression strategies are in practice
+I assume this is for
+depression
+yeah
+I mean I think it's still pretty early so
+it's
+I don't know is the honest answer
+I think there are edge cases where it definitely works
+I think like I think
+I mean I think the big question like
+I don't think there's any debate that I like works
+I think the question is about like ROI and
+and like
+you know is it effective in terms of
+like the cost that it encourages as well
+and I have been jury still probably out on that
+and it depends a little bit on your application
+probably
+nah nah how does
+the waiting of information work
+how do you implementing that data level in the prompt
+yeah so the
+so okay taking some concrete examples
+the generative agent paper
+what it did is it did a retrieval step
+based on semantic similarity
+and then it re
+ranked things by incorporating importance
+into that
+along and with like there's some
+you know there's some
+like lambda in front of the
+important score and some lambda in front of the the
+the similarity score
+and then also some lambda in terms of the
+the recency score I believe
+and so the I guess the general
+so that would be one way of doing it basically like
+combine the important score
+with the similarity score to re
+rank things and then take the combined
+like top 3 or 4 documents
+after that re ranking
+you could also do it in the prompt
+this is a bit more
+you know the
+general
+phagians is a very concrete application of this
+putting it in the prompt
+you
+usually need to
+then do some prompt engineering to tell the language
+model to pay more attention to it
+haven't seen this
+one done as much in practice
+it's mostly been kind of like
+re ranking and reordering after fetching documents
+regarding the components described in the Generative
+Agents paper how well does such conscious map
+into general higher order obstructions
+that can be composed into useful applications
+is cause inherently problematic
+for the foreseeable future
+um I mean I think the um
+so around cost
+I think the
+I think honestly the biggest blocker for
+most things is like
+still getting like product market fit
+to be honest
+I think getting stuff that works and is useful
+is a bigger blocker than cost
+after that cost yeah it probably becomes problematic
+but
+I don't think
+like
+even if you put costs aside
+I haven't seen a lot of projects
+that are really diving deep into this type of memory
+or this type of retrieval and really optimizing
+stuff there
+that was the second part of the question
+what was the first part of the question
+gt gt
+all this conscious mapping
+to
+general higher order obstructions that can be composed
+to you so I think you did both
+and we have one is what is this
+perspective on the evolving trends
+towards intimate and private engagements with AI
+an increasing number of
+conversations being entrusted to AI systems
+conversations which
+typically would have been exclusively human
+how can we design an implement trust based
+mechanisms to ensure these interactions remain secure
+in privacy centric
+yeah that's a good question
+all preferences by saying I don't really know
+so you should take everything that I say
+after this with the grain of salt
+but I think like
+there's definitely like
+off top of head there's like two really big components
+that I can think of
+so one is like making you know for these more like
+private intimate conversations
+like making sure the language model
+really does not suggest things that are harmful in
+any way right
+like if you're having these types of conversations
+like it should not be saying anything that is harmful
+or could lead to violence or anything like that
+because you're really you know you're really
+it's much
+different than if you're interacting with like
+question answering over a random document
+right like the stakes are a lot higher there
+and then the other thing is around
+so that's maybe one around like safety
+and I think this is um
+much more safety of like the underlying
+underlying models
+then there's like
+the privacy
+and probably like the privacy of this whole system
+and so yeah making sure that your data is
+as secure as possible
+does this mean like a locally deployed LOLM
+it could it could
+also mean just better privacy policies
+from from some of the cloud ones
+it probably depends on your biscuit polarance
+I don't know this super strong
+thing here I think obviously local alums would be
+ideal
+but I don't 100% note if that's a block or
+if there's really good security measures put in place
+like we entrust a lot of our personal information
+to the clad as well
+yeah it's a good question though
+with time for one more
+okay when using LMS for summarization and
+reasoning based on semantic surge
+are there any
+opens first
+models you suggest for that particular purpose
+I've had
+the only
+the
+only one that I've had any look with is Mosaics
+mpt7b model
+I've tried out a few others
+you know I haven't experimented too much
+I think the Kuna is not terrible
+so I don't have so I take it back
+the MPT
+7b isn't the only one that I've had success with
+I think like the Kuna
+and then that one
+are two that I've had a little bit of success with
+but still super early on in the open source days
+so that will probably
+they'll probably be a lot more
+so
+I think we're at time
+there's probably
+former questions we can probably get answered as to
+lay it or maybe
+so we don't go too far over
+not sure the family wants to
+yeah it's up to you Harrison
+if you've got a couple extra minutes
+we're happy to take a few more questions
+but if you've got a jump then we will
+probably do a follow up blog with answers
+to those questions
+I do gotta jump
+all right I appreciate
+having me on here but
+I got a conflict that I gotta jump off
+of course we understand
+fellow Paris and thank you so much
+this was a really great session
+thank you for
+all of the wonderful questions from our audience
+we hope to see you on a future
+Zilla's webinar and keep an eye out for that blog post
+we will do our best
+to get the rest of those questions answered
+and you'll find that on the Zilla's blog
+thanks everyone
+thanks
+thanks bye
